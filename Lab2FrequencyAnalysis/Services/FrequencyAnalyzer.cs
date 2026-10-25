@@ -3,11 +3,26 @@ using FrequencyAnalysis.Constants;
 
 namespace FrequencyAnalysis.Services;
 
-public record LetterFrequency(char Letter, int Count, double Percent);
+public record LetterFrequency
+{
+    public char Letter { get; init; }
+    public int Count { get; init; }
+    public double Percent { get; init; }
+
+    public LetterFrequency(char letter, int count, double percent)
+    {
+        Letter = letter;
+        Count = count;
+        Percent = percent;
+    }
+}
 
 public static class FrequencyAnalyzer
 {
-    public static int CountLetters(string text) => text.Count(EnglishAlphabet.IsLetter);
+    public static int CountLetters(string text)
+    {
+        return text.Count(EnglishAlphabet.IsLetter);
+    }
 
     public static List<LetterFrequency> LetterFrequencies(string text)
     {
@@ -32,21 +47,47 @@ public static class FrequencyAnalyzer
         return result;
     }
 
-    public static List<LetterFrequency> SortedByFrequency(string text) =>
-        LetterFrequencies(text)
-            .OrderByDescending(f => f.Count)
-            .ThenBy(f => f.Letter)
+    public static List<LetterFrequency> SortedByFrequency(string text)
+    {
+        return LetterFrequencies(text)
+            .OrderByDescending(delegate (LetterFrequency f)
+            {
+                return f.Count;
+            })
+            .ThenBy(delegate (LetterFrequency f)
+            {
+                return f.Letter;
+            })
             .ToList();
+    }
 
     public static List<(string Word, int Count)> MostFrequentWords(string text, int length, int top)
     {
         return Regex.Matches(text.ToUpperInvariant(), "[A-Z]+")
-            .Select(m => m.Value)
-            .Where(w => w.Length == length)
-            .GroupBy(w => w)
-            .Select(g => (Word: g.Key, Count: g.Count()))
-            .OrderByDescending(x => x.Count)
-            .ThenBy(x => x.Word)
+            .Select(delegate (Match m)
+            {
+                return m.Value;
+            })
+            .Where(delegate (string w)
+            {
+                return w.Length == length;
+            })
+            .GroupBy(delegate (string w)
+            {
+                return w;
+            })
+            .Select(delegate (IGrouping<string, string> g)
+            {
+                return (Word: g.Key, Count: g.Count());
+            })
+            .OrderByDescending(delegate ((string Word, int Count) x)
+            {
+                return x.Count;
+            })
+            .ThenBy(delegate ((string Word, int Count) x)
+            {
+                return x.Word;
+            })
             .Take(top)
             .ToList();
     }

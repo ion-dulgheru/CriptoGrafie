@@ -17,7 +17,6 @@ public static class InputValidator
                 Console.WriteLine("Eroare: Nu ați introdus nicio substituție! Încercați din nou.\n");
                 continue;
             }
-
             var result = new List<(char, char)>();
             string? error = null;
             foreach (string token in tokens)
