@@ -1,0 +1,38 @@
+RASPUNSURI - Exercitii de antrenament Lab 5
+(din Lab5_Ghid_Predare_Wolfram.pdf, sectiunea 8).
+
+EXERCITIUL 1  (p=89, q=97, e=5, m=1234)
+  n = 8633
+  phi = 8448
+  d = 5069
+  c = 12
+  decriptare -> 1234
+
+EXERCITIUL 2  ("Criptografie", p=NextPrime[3*2^1022+2026], q=NextPrime[3*2^1022+10^6])
+  m (zecimal) = 20873811124372263270466611557
+  m (hex) = 43726970746f677261666965
+  BitLength[p] = 1024, BitLength[q] = 1024, BitLength[n] = 2048
+  Mod[p, 10^6] = 104999
+  Mod[q, 10^6] = 103579
+  Mod[n, 10^6] = 691421
+  Mod[d, 10^6] = 99793
+  Mod[c, 10^6] = 151335
+  text decriptat = Criptografie
+
+EXERCITIUL 3  (ElGamal, x=2^1500+12345, k=2^1200+999)
+  Mod[y, 10^6] = 797504
+  Mod[c1, 10^6] = 831440
+  Mod[c2, 10^6] = 94561
+  Mod[s, 10^6] = 800941
+  text decriptat = Criptografie
+
+EXERCITIUL 4  (Diffie-Hellman, a=2^1800+2026, b=2^1700+1111)
+  Mod[A, 10^6] = 29167
+  Mod[B, 10^6] = 242583
+  Mod[kAlisa, 10^6] = 51111
+  kAlisa == kBob = True
+  kAES (SHA-256)  = 1a3b433cba5b48cd4a343f88e55dfbc15607726c6ebee756f5c58a2184fabde0
+                    (primele 8: 1a3b433c)
+  varianta Mod[kAlisa, 2^256] = 747db845b49c39fd98d3e584f45eea2700718a4b49dbe59f66886f73d16359e7
+
+Obs: Wolfram nu afiseaza zerourile din fata, deci Mod[...,10^6] poate avea sub 6 cifre (ex. 29167).
