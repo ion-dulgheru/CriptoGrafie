@@ -34,7 +34,6 @@ public static class ConsolePrinter
         Console.WriteLine("=== Sarcina 2.10: calcul Ri ===");
         Console.WriteLine();
 
-        // Etichete S1..S8 deasupra grupelor de 4 biti
         var labels = new StringBuilder();
         for (int j = 1; j <= 8; j++)
             labels.Append(("S" + j).PadRight(5));
