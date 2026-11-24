@@ -1,0 +1,73 @@
+ClearAll["Global`*"]
+
+codes = ToCharacterCode["Dulgheru Ion"]
+
+IntegerString[codes, 16]
+
+m = FromDigits[codes, 256]
+
+IntegerString[m, 16]
+
+BitLength[m]
+
+p = RandomPrime[{3*2^1022, 2^1024 - 1}];
+q = RandomPrime[{3*2^1022, 2^1024 - 1}];
+{BitLength[p], BitLength[q], PrimeQ[p], PrimeQ[q], p != q}
+
+n = p*q;
+BitLength[n]
+
+phi = (p - 1)*(q - 1);
+e = 65537;
+GCD[e, phi]
+
+d = PowerMod[e, -1, phi]
+
+Mod[e*d, phi]
+
+c = PowerMod[m, e, n]
+
+m2 = PowerMod[c, d, n]
+
+m2 == m
+
+FromCharacterCode[IntegerDigits[m2, 256]]
+
+pp = 32317006071311007300153513477825163362488057133489075174588434139269806834136210002792056362640164685458556357935330816928829023080573472625273554742461245741026202527916572972862706300325263428213145766931414223654220941111348629991657478268034230553086349050635557712219187890332729569696129743856241741236237225197346402691855797767976823014625397933058015226858730761197532436467475855460715043896844940366130497697812854295958659597567051283852132784468522925504568272879113720098931873959143374175837826000278034973198552060607533234122603254684088120031105907484281003994966956119696956248629032338072839127039;
+g = 2;
+{BitLength[pp], PrimeQ[pp], PrimeQ[(pp - 1)/2]}
+
+x = RandomInteger[{2, pp - 2}];
+y = PowerMod[g, x, pp]
+
+k = RandomInteger[{2, pp - 2}];
+c1 = PowerMod[g, k, pp]
+
+c2 = Mod[m*PowerMod[y, k, pp], pp]
+
+s = PowerMod[c1, x, pp];
+s == PowerMod[y, k, pp]
+
+mE = Mod[c2*PowerMod[s, -1, pp], pp]
+
+mE == m
+
+FromCharacterCode[IntegerDigits[mE, 256]]
+
+a = RandomInteger[{2, pp - 2}];
+b = RandomInteger[{2, pp - 2}];
+
+bigA = PowerMod[g, a, pp]
+
+bigB = PowerMod[g, b, pp]
+
+kAlisa = PowerMod[bigB, a, pp];
+kBob = PowerMod[bigA, b, pp];
+kAlisa == kBob
+
+kAES = IntegerString[Hash[ByteArray[IntegerDigits[kAlisa, 256, 256]], "SHA256"], 16, 64]
+
+{StringLength[kAES], 4*StringLength[kAES]}
+
+kAESBob = IntegerString[Hash[ByteArray[IntegerDigits[kBob, 256, 256]], "SHA256"], 16, 64];
+kAES == kAESBob

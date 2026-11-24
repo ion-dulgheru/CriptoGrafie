@@ -1,0 +1,68 @@
+Notebook[{
+Cell["Lucrarea de laborator nr. 5. Criptografia cu chei publice", "Title"],
+Cell["Dulgheru Ion, FAF-241. Mesaj: m = \"Dulgheru Ion\". Rulare: Evaluation \:2192 Evaluate Notebook (sau Shift+Enter pe fiecare celul\:0103, de sus \:00een jos).", "Text"],
+Cell["ClearAll[\"Global`*\"]", "Input"],
+Cell["0. Mesajul ca num\:0103r (ASCII \:2192 hex \:2192 zecimal)", "Section"],
+Cell["Fiecare caracter este \:00eenlocuit cu codul s\:0103u ASCII, scris \:00een hex (un octet). Codurile hex lipite formeaz\:0103 un num\:0103r hexazecimal, care se converte\:0219te \:00een zecimal.", "Text"],
+Cell["codes = ToCharacterCode[\"Dulgheru Ion\"]", "Input"],
+Cell["IntegerString[codes, 16]", "Input"],
+Cell["m = FromDigits[codes, 256]", "Input"],
+Cell["IntegerString[m, 16]", "Input"],
+Cell["BitLength[m]", "Input"],
+Cell["Sarcina 2.1. RSA (n de 2048 de bi\:021bi)", "Section"],
+Cell["Pasul 1. Dou\:0103 numere prime aleatorii p \:2260 q de c\:00e2te 1024 de bi\:021bi. Din intervalul [3\:00b72^1022, 2^1024 \:2212 1] produsul are exact 2048 de bi\:021bi.", "Text"],
+Cell["p = RandomPrime[{3*2^1022, 2^1024 - 1}];
+q = RandomPrime[{3*2^1022, 2^1024 - 1}];
+{BitLength[p], BitLength[q], PrimeQ[p], PrimeQ[q], p != q}", "Input"],
+Cell["Pasul 2. Modulul n = p\:00b7q.", "Text"],
+Cell["n = p*q;
+BitLength[n]", "Input"],
+Cell["Pasul 3. \:03c6(n) = (p \:2212 1)(q \:2212 1) \:0219i exponentul public e = 65537, care trebuie s\:0103 fie prim cu \:03c6(n).", "Text"],
+Cell["phi = (p - 1)*(q - 1);
+e = 65537;
+GCD[e, phi]", "Input"],
+Cell["Pasul 4. Exponentul privat d = e^(\:22121) mod \:03c6(n). Verificare: e\:00b7d mod \:03c6(n) = 1. Cheia public\:0103 este (e, n), iar cea privat\:0103 (d, n).", "Text"],
+Cell["d = PowerMod[e, -1, phi]", "Input"],
+Cell["Mod[e*d, phi]", "Input"],
+Cell["Pasul 5. Criptarea: c = m^e mod n.", "Text"],
+Cell["c = PowerMod[m, e, n]", "Input"],
+Cell["Pasul 6. Decriptarea: m = c^d mod n \:0219i conversia \:00eenapoi \:00een text.", "Text"],
+Cell["m2 = PowerMod[c, d, n]", "Input"],
+Cell["m2 == m", "Input"],
+Cell["FromCharacterCode[IntegerDigits[m2, 256]]", "Input"],
+Cell["Parametrii din enun\:021b pentru 2.2 \:0219i 3", "Section"],
+Cell["p de 2048 de bi\:021bi (numit pp, ca s\:0103 nu suprascrie p-ul de la RSA) \:0219i generatorul g = 2. Este primul ffdhe2048 din RFC 7919, un safe prime: (p \:2212 1)/2 este tot prim.", "Text"],
+Cell["pp = 32317006071311007300153513477825163362488057133489075174588434139269806834136210002792056362640164685458556357935330816928829023080573472625273554742461245741026202527916572972862706300325263428213145766931414223654220941111348629991657478268034230553086349050635557712219187890332729569696129743856241741236237225197346402691855797767976823014625397933058015226858730761197532436467475855460715043896844940366130497697812854295958659597567051283852132784468522925504568272879113720098931873959143374175837826000278034973198552060607533234122603254684088120031105907484281003994966956119696956248629032338072839127039;
+g = 2;
+{BitLength[pp], PrimeQ[pp], PrimeQ[(pp - 1)/2]}", "Input"],
+Cell["Sarcina 2.2. ElGamal", "Section"],
+Cell["Pasul 1. Cheia privat\:0103 x este aleas\:0103 aleatoriu din [2, p \:2212 2] (nu se afi\:0219eaz\:0103). Cheia public\:0103 este y = g^x mod p.", "Text"],
+Cell["x = RandomInteger[{2, pp - 2}];
+y = PowerMod[g, x, pp]", "Input"],
+Cell["Pasul 2. Criptarea cu un k aleatoriu, nou pentru fiecare mesaj: c1 = g^k mod p, c2 = m\:00b7y^k mod p.", "Text"],
+Cell["k = RandomInteger[{2, pp - 2}];
+c1 = PowerMod[g, k, pp]", "Input"],
+Cell["c2 = Mod[m*PowerMod[y, k, pp], pp]", "Input"],
+Cell["Pasul 3. Decriptarea: s = c1^x mod p (egal cu y^k), apoi m = c2\:00b7s^(\:22121) mod p.", "Text"],
+Cell["s = PowerMod[c1, x, pp];
+s == PowerMod[y, k, pp]", "Input"],
+Cell["mE = Mod[c2*PowerMod[s, -1, pp], pp]", "Input"],
+Cell["mE == m", "Input"],
+Cell["FromCharacterCode[IntegerDigits[mE, 256]]", "Input"],
+Cell["Sarcina 3. Diffie-Hellman \:0219i cheia AES-256", "Section"],
+Cell["Pasul 1. Alisa \:0219i Bob aleg \:00een secret, aleatoriu, a \:0219i b din [2, p \:2212 2]. Aceste numere nu se transmit \:0219i nu se afi\:0219eaz\:0103.", "Text"],
+Cell["a = RandomInteger[{2, pp - 2}];
+b = RandomInteger[{2, pp - 2}];", "Input"],
+Cell["Pasul 2. Valorile publice trimise pe canal: Alisa \:2192 Bob A = g^a mod p, Bob \:2192 Alisa B = g^b mod p.", "Text"],
+Cell["bigA = PowerMod[g, a, pp]", "Input"],
+Cell["bigB = PowerMod[g, b, pp]", "Input"],
+Cell["Pasul 3. Fiecare calculeaz\:0103 secretul comun: Alisa B^a mod p, Bob A^b mod p. Ambele sunt egale cu g^(ab) mod p.", "Text"],
+Cell["kAlisa = PowerMod[bigB, a, pp];
+kBob = PowerMod[bigA, b, pp];
+kAlisa == kBob", "Input"],
+Cell["Pasul 4. Secretul are 2048 de bi\:021bi, iar AES-256 are nevoie de 256. Cheia AES este SHA-256 aplicat pe cei 256 de octe\:021bi ai secretului: 64 de cifre hex = 256 de bi\:021bi.", "Text"],
+Cell["kAES = IntegerString[Hash[ByteArray[IntegerDigits[kAlisa, 256, 256]], \"SHA256\"], 16, 64]", "Input"],
+Cell["{StringLength[kAES], 4*StringLength[kAES]}", "Input"],
+Cell["kAESBob = IntegerString[Hash[ByteArray[IntegerDigits[kBob, 256, 256]], \"SHA256\"], 16, 64];
+kAES == kAESBob", "Input"]
+}, StyleDefinitions -> "Default.nb"]
