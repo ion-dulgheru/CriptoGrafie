@@ -1,0 +1,95 @@
+m = StringJoin[Riffle[{
+"Vigenere was born in the village of Saint-Pourcain, about halfwaybetween Paris and Marseilles, on April 5, 1523. At 24, he entered theservice of the Duke of Nevers, to whose house he remained attached therest of his life, except for periods at court and as a diplomat. In 1549, at26, he went to Rome on a two-year diplomatic mission.It was here that he was first thrown into contact with cryptology, andhe seems to have steeped himself in it. He read the books of Trithemius,Belaso, and other writers, and the unpublished manuscript of Alberti. Heevidently conversed with the experts of the papal curia, for he tellsanecdotes that he could have heard only in the shoptalk of thesecryptologists.",
+"At 47, Vigenere quit the court, turned over his annuity of1,000 livres a year to the poor of Paris, married the much younger MarieVare, and devoted himself to his writing. His Traicte des Chiffres, whichwas written in 1585 despite the distraction of a year-old baby daughter,appeared, elegantly rubricated, in 1586, and was reprinted the followingyear. His autokey system used the plaintext as the key. It provided apriming key. This consisted of a single letter, known to both enciphererand decipherer, with which the decipherer could decipher the firstcryptogram letter and so get a start on his, work. With this, he would getthe first plaintext letter, then use this as the key to decipher the secondcryptogram letter, use that plaintext as the key to decipher the thirdcryptogram letter, and so on.",
+"The system works well and affords fair guarantees of security; it hasbeen embodied in a number of modern cipher machines.In spite of Vigenere's clear exposition of his technique, it was entirelyforgotten and only entered the stream of cryptology late in the 19thcentury after it had been reinvented. Writers on cryptology then addedinsult to injury by degrading Vigenere's system into one much moreelementary.",
+"The cipher now universally called the Vigenere employs only standard alphabets and a short repeating keyword\:2014a system farmore susceptible to solution than Vigenere's autokey. Its tableauconsists of a modern tabula recta: 26 standard horizontal alphabets,each slid one space to the left of the one above. These are the cipheralphabets. A normal alphabet for the plaintext stands at the top. Anothernormal alphabet, which merely repeats the initial letters of the horizontalciphertext alphabets, runs down the left side. This is the key alphabet.Both correspondents must know the keyword. The encipherer repeatsthis above the plaintext letters until each one has a keyletter. He seeksthe plaintext letter in the top alphabet and the keyletter in the side. Thenhe traces down from the top and in from the side. The ciphertext letterstands at the intersection of the column and the row. The enciphererrepeats this process with all the letters of the plaintext. To decipher, theclerk begins with the keyletter, runs in along the ciphertext alphabetuntil he strikes the cipher letter, then follows the column of lettersupward until he emerges at the plaintext letter at the top.",
+"Polyalphabetic ciphers were, when used with mixed alphabets andwithout word divisions, unbreakable to the cryptanalysts of theRenaissance. Why, then, did the nomenclator reign supreme for 300years? Why did cryptographers not use the polyalphabetic systeminstead?"
+}, "\n"]];
+{StringLength[m], Length[StringToByteArray[m, "UTF-8"]]}
+
+
+StringTake[m, 120]
+
+
+p = RandomPrime[{3*2^1534, 2^1536 - 1}];
+q = RandomPrime[{3*2^1534, 2^1536 - 1}];
+{BitLength[p], BitLength[q], p != q}
+
+
+n = p*q;
+BitLength[n]
+
+
+phi = (p - 1)*(q - 1);
+e = 65537;
+GCD[e, phi]
+
+
+d = PowerMod[e, -1, phi];
+Mod[e*d, phi]
+
+
+hHex1 = Hash[StringToByteArray[m, "UTF-8"], "SHA512", "HexString"]
+
+
+h1 = FromDigits[hHex1, 16]
+
+
+{BitLength[h1], h1 < n}
+
+
+s1 = PowerMod[h1, d, n]
+
+
+v1 = PowerMod[s1, e, n];
+v1 == h1
+
+
+v1 == FromDigits[Hash[StringToByteArray[m, "UTF-8"], "SHA512", "HexString"], 16]
+
+
+mFals = StringReplace[m, "1523" -> "1524", 1];
+PowerMod[s1, e, n] == FromDigits[Hash[StringToByteArray[mFals, "UTF-8"], "SHA512", "HexString"], 16]
+
+
+pE = 32317006071311007300153513477825163362488057133489075174588434139269806834136210002792056362640164685458556357935330816928829023080573472625273554742461245741026202527916572972862706300325263428213145766931414223654220941111348629991657478268034230553086349050635557712219187890332729569696129743856241741236237225197346402691855797767976823014625397933058015226858730761197532436467475855460715043896844940366130497697812854295958659597567051283852132784468522925504568272879113720098931873959143374175837826000278034973198552060607533234122603254684088120031105907484281003994966956119696956248629032338072839127039;
+g = 2;
+{BitLength[pE], PrimeQ[pE]}
+
+
+x = RandomInteger[{2, pE - 2}];
+y = PowerMod[g, x, pE];
+BitLength[y]
+
+
+hHex2 = Hash[StringToByteArray[m, "UTF-8"], "SHA384", "HexString"]
+
+
+h2 = FromDigits[hHex2, 16]
+
+
+k = RandomInteger[{2, pE - 2}];
+While[GCD[k, pE - 1] != 1, k = RandomInteger[{2, pE - 2}]];
+GCD[k, pE - 1]
+
+
+r = PowerMod[g, k, pE]
+
+
+kInv = PowerMod[k, -1, pE - 1];
+Mod[k*kInv, pE - 1]
+
+
+s2 = Mod[(h2 - x*r)*kInv, pE - 1]
+
+
+{0 < r < pE, 0 <= s2 < pE - 1}
+
+
+left = PowerMod[g, h2, pE];
+right = Mod[PowerMod[y, r, pE]*PowerMod[r, s2, pE], pE];
+left == right
+
+
+h2Fals = FromDigits[Hash[StringToByteArray[mFals, "UTF-8"], "SHA384", "HexString"], 16];
+PowerMod[g, h2Fals, pE] == Mod[PowerMod[y, r, pE]*PowerMod[r, s2, pE], pE]
